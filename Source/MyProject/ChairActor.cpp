@@ -16,6 +16,15 @@ AChairActor::AChairActor()
 	CustomMesh->bUseAsyncCooking = true;
 }
 
+/// <summary>
+/// Creates the chair mesh
+/// </summary>
+/// <param name="p_dLengthSeatSurface">Width of seat surface</param>
+/// <param name="p_dHeightSeatSurface">Height of the seat surface</param>
+/// <param name="p_dWidthLeg">Width of the support</param>
+/// <param name="p_dHeightLeg">Height of the support</param>
+/// <param name="p_dHeightBackSupport">Height back support</param>
+/// <param name="p_dWidthBackSupport">Width back support</param>
 void AChairActor::CreateChairMesh(double p_dLengthSeatSurface ,double p_dHeightSeatSurface, double p_dWidthLeg, double p_dHeightLeg, double p_dHeightBackSupport, double p_dWidthBackSupport)
 {
 	m_vfVertices.Empty();
@@ -81,18 +90,10 @@ void AChairActor::Tick(float DeltaTime)
 
 }
 
-void AChairActor::SetCenterPointOfSeatSurface(double p_dX, double p_dY, double p_dZ)
-{
-	CenterPointOfSeat.X = p_dX;
-	CenterPointOfSeat.Y = p_dY;
-	CenterPointOfSeat.Z = p_dZ;
-}
-
-void AChairActor::SetCenterPointOfSeatSurface(const FVector& p_ofLowerLeftPointOfSeatSurface)
-{
-	CenterPointOfSeat = p_ofLowerLeftPointOfSeatSurface;
-}
-
+/// <summary>
+/// Get Procedural Mesh Component
+/// </summary>
+/// <returns>Procedural Mesh Component pointer</returns>
 UProceduralMeshComponent* AChairActor::GetProceduralMeshComponent()
 {
 	return CustomMesh;

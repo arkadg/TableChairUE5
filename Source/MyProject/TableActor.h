@@ -30,7 +30,6 @@ private:
 
 	FVector CenterPointOfTableSurface;
 
-	double m_dCurrentHeight;
 	double m_dCurrentLength;
 	double m_dCurrentBreadth;
 
@@ -50,18 +49,14 @@ public:
 	ATableActor();
 	void CreateTableMesh(double p_dLengthTableSurface, double p_dBreadthTableSurface, double p_dHeightTableSurface, double p_dWidthTableSupport, double p_dHeightTableSupport);
 
-	void SetCenterPointOfTableSurface(double p_dX, double p_dY, double p_dZ);
-	void SetCenterPointOfTableSurface(const FVector& p_ofLowerLeftPointOfTableSurface);
 	//void SetHeight(const double p_dHeight);
 	void SetLengthTableSurface(const double p_dLength);
 	void SetBreadthTableSurface(const double p_dBreadth);
 
-	FVector& GetCenterPointOfTableSurface();
-	double GetHeight() const;
 	double GetLength() const;
 	double GetBreadth() const;
 
-	UProceduralMeshComponent* GetProceduralMeshComponent();
+	UProceduralMeshComponent* GetProceduralMeshComponent() const;
 
 	void SetTableBackLeft(const FVector2D& p_oTablePointBackLeft);
 	void SetTableBackRight(const FVector2D& p_oTablePointBackRight);

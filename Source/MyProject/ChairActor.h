@@ -38,8 +38,4 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-
-	void SetCenterPointOfSeatSurface(double p_dX, double p_dY, double p_dZ);
-	void SetCenterPointOfSeatSurface(const FVector& p_ofLowerLeftPointOfSeatSurface);
-
 };

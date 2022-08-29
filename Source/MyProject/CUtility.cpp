@@ -14,6 +14,9 @@
 /// 
 int CUtility::Generate3DQuadMesh(const FVector& p_oCenterPoint, double p_dLength, double p_dBreadth, double p_dHeight, TArray<FVector>& p_vfVertices, TArray<int32> &p_viTriangles)
 {
+
+	// By default the center point vector is a Zero Vector.
+	// The mesh is created considering (0,0,0) location. But the actual location is set from the client side.
 	int currentIndex = p_vfVertices.Num();
 
 	p_vfVertices.Add(FVector(p_oCenterPoint.X - p_dBreadth/2, p_oCenterPoint.Y - p_dLength/2, p_oCenterPoint.Z - p_dHeight/2)); //lower left - 0
@@ -68,6 +71,12 @@ void CUtility::ConstructTriangleWithIndices(TArray<int32>& p_viTriangles,int32 p
 	p_viTriangles.Add(p_iIndex3);
 }
 
+/// <summary>
+///  Gets the material from file
+/// </summary>
+/// <param name="p_fsMaterialRef">Material Reference Path</param>
+/// <param name="p_ptrMatInterface">Material Interface Reference to pointer</param>
+/// <returns></returns>
 bool CUtility::GetMaterialFromFile(const FString& p_fsMaterialRef, UMaterialInterface** p_ptrMatInterface)
 {
 	if (p_fsMaterialRef.IsEmpty())

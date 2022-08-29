@@ -22,18 +22,16 @@ ADefaultPlayerController::ADefaultPlayerController()
 	m_eTouchPoint = TouchPoints::eTouchNone;
 }
 
+
+// Called when the game starts or when spawned
 void ADefaultPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if (CreateTable(FVector(1500,-1200,215),FRotator::ZeroRotator))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,TEXT("Create Table: SUCCESS"));
-		if (CalculateAndPlaceChairs())
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Create Chairs: SUCCESS"));
-		}
-		else
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,TEXT("Create Table: SUCCESS"));
+		if (!CalculateAndPlaceChairs())
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Create Chairs: FAILURE"));
 		}
@@ -44,6 +42,7 @@ void ADefaultPlayerController::BeginPlay()
 	}
 }
 
+// Called every frame
 void ADefaultPlayerController::Tick(float deltatime)
 {
 	Super::Tick(deltatime);
@@ -66,8 +65,10 @@ void ADefaultPlayerController::Tick(float deltatime)
 		GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursorForObjects({ UEngineTypes::ConvertToObjectType(ECC_PhysicsBody) }, false, HitResult);
 		if (HitResult.GetActor())
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Impact: %s"), *HitResult.ImpactPoint.ToString()));
+			// If the click is on the table actor, then check the impact point
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Impact: %s"), *HitResult.ImpactPoint.ToString()));
 
+			// Check whether the click is near any corner
 			FVector diffLeftBack = HitResult.ImpactPoint - FVector(oTablePointBackLeft.X, oTablePointBackLeft.Y, 230);
 			FVector diffLeftFront = HitResult.ImpactPoint - FVector(oTablePointFrontLeft.X, oTablePointFrontLeft.Y, 230);
 			FVector diffRightBack = HitResult.ImpactPoint - FVector(oTablePointBackRight.X, oTablePointBackRight.Y, 230);
@@ -118,6 +119,7 @@ void ADefaultPlayerController::Tick(float deltatime)
 			FPlane plane{ FVector(oTablePointBackLeft.X + m_actTable->GetBreadth()/2,oTablePointBackLeft.Y + m_actTable->GetLength()/2,230),{0.0,0.0,1.0}};
 			if (FVector::DotProduct({ 0.0f, 0.0f, 0.1f }, CursorDirection) != 0)
 			{
+				// Use line and plane intersection to see where the mouse is moved considering the same table surface plane.
 				const FVector Intersection = FMath::LinePlaneIntersection(CursorLocation, end, plane);
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Intersection: %s"), *Intersection.ToString()));
 				FVector fvNearestCornerPoint;
@@ -140,7 +142,8 @@ void ADefaultPlayerController::Tick(float deltatime)
 				}
 				FVector stretch3D = Intersection - fvNearestCornerPoint;
 				FVector2D stretch = FVector2D(stretch3D.X, stretch3D.Y);
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Stretch: %s"), *stretch.ToString()));
+				// Mouse moved by stretch.X and stretch.Y 
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Stretch: %s"), *stretch.ToString()));
 
 				if (stretch != FVector2D::ZeroVector)
 				{
@@ -149,13 +152,14 @@ void ADefaultPlayerController::Tick(float deltatime)
 				}
 				else
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Strecth is Zero Vector"));
+					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Strecth is Zero Vector"));
 				}
 			}
 		}
 	}
 }
 
+// Setup the input component
 void ADefaultPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -167,6 +171,12 @@ void ADefaultPlayerController::SetupInputComponent()
 	}
 }
 
+/// <summary>
+/// Create the table as per passed location and rotator
+/// </summary>
+/// <param name="p_fvLoc">Location of table</param>
+/// <param name="p_frRot">Rotator of table</param>
+/// <returns>true if success, else failure</returns>
 bool ADefaultPlayerController::CreateTable(const FVector& p_fvLoc, const FRotator& p_frRot) 
 {
 	bool bIsSuccess = true;
@@ -198,6 +208,12 @@ bool ADefaultPlayerController::CreateTable(const FVector& p_fvLoc, const FRotato
 
 }
 
+/// <summary>
+/// Create the chair as per passed location and rotator
+/// </summary>
+/// <param name="p_fvLoc">Location of table</param>
+/// <param name="p_frRot">Rotator of table</param>
+/// <returns>true if success, else failure</returns>
 bool ADefaultPlayerController::CreateChair(const FVector& p_fvLoc, const FRotator& p_frRot)
 {
 	bool bIsSuccess = true;
@@ -218,6 +234,11 @@ bool ADefaultPlayerController::CreateChair(const FVector& p_fvLoc, const FRotato
 	return bIsSuccess;
 }
 
+/// <summary>
+/// Create the initial chair chair setup 
+/// </summary>
+/// Note: Currently this is not used!!!
+/// <returns>true if success, else failure</returns>
 bool ADefaultPlayerController::CreateInitialChairs()
 {
 	bool bIsSuccess = true;
@@ -257,6 +278,10 @@ bool ADefaultPlayerController::CreateInitialChairs()
 	return bIsSuccess;
 }
 
+/// <summary>
+/// Destroy the existing chairs
+/// </summary>
+/// <returns>true if success, else failure</returns>
 bool ADefaultPlayerController::DestroyChairs()
 {
 	bool bIsDestroyed = true;
@@ -270,6 +295,10 @@ bool ADefaultPlayerController::DestroyChairs()
 	return bIsDestroyed;
 }
 
+/// <summary>
+/// Calculate and place chairs as per the current length and breadth of the table
+/// </summary>
+/// <returns>true if success, else failure</returns>
 bool ADefaultPlayerController::CalculateAndPlaceChairs()
 {
 	if (nullptr == m_actTable)
@@ -300,9 +329,9 @@ bool ADefaultPlayerController::CalculateAndPlaceChairs()
 
 	for (unsigned int i = 0; i < uiNumOfChairsXAxis; i++)
 	{
-		FVector oLocLeft = FVector(oTablePointBackLeft.X + uiGapValueXAxis * (i + 1) + 150 * i + WIDTH_OF_CHAIR / 2, oTablePointBackLeft.Y,HEIGHT_OF_SEAT_CHAIR);
+		FVector oLocLeft = FVector(oTablePointBackLeft.X + uiGapValueXAxis * (i + 1) + WIDTH_OF_CHAIR * i + WIDTH_OF_CHAIR / 2, oTablePointBackLeft.Y,HEIGHT_OF_SEAT_CHAIR);
 		FRotator oRotLeft = FRotator(0, 90, 0);
-		FVector oLocRight = FVector(oTablePointBackRight.X + uiGapValueXAxis * (i + 1) + 150 * i + WIDTH_OF_CHAIR / 2, oTablePointBackRight.Y, HEIGHT_OF_SEAT_CHAIR);
+		FVector oLocRight = FVector(oTablePointBackRight.X + uiGapValueXAxis * (i + 1) + WIDTH_OF_CHAIR * i + WIDTH_OF_CHAIR / 2, oTablePointBackRight.Y, HEIGHT_OF_SEAT_CHAIR);
 		FRotator oRotRight = FRotator(0, -90, 0);
 		 
 		if(!CreateChair(oLocLeft, oRotLeft))
@@ -315,9 +344,9 @@ bool ADefaultPlayerController::CalculateAndPlaceChairs()
 
 	for (unsigned int i = 0; i < uiNumOfChairsYAxis; i++)
 	{
-		FVector oLocBack = FVector(oTablePointBackLeft.X, oTablePointBackLeft.Y + uiGapValueYAxis * (i + 1) + 150 * i + WIDTH_OF_CHAIR / 2, HEIGHT_OF_SEAT_CHAIR);
+		FVector oLocBack = FVector(oTablePointBackLeft.X, oTablePointBackLeft.Y + uiGapValueYAxis * (i + 1) + WIDTH_OF_CHAIR * i + WIDTH_OF_CHAIR / 2, HEIGHT_OF_SEAT_CHAIR);
 		FRotator oRotBack = FRotator(0, 0, 0);
-		FVector oLocFront = FVector(oTablePointFrontLeft.X , oTablePointFrontLeft.Y + uiGapValueYAxis * (i + 1) + 150 * i + WIDTH_OF_CHAIR / 2, HEIGHT_OF_SEAT_CHAIR);
+		FVector oLocFront = FVector(oTablePointFrontLeft.X , oTablePointFrontLeft.Y + uiGapValueYAxis * (i + 1) + WIDTH_OF_CHAIR * i + WIDTH_OF_CHAIR / 2, HEIGHT_OF_SEAT_CHAIR);
 		FRotator oRotFront = FRotator(0, 180, 0);
 
 		if(!CreateChair(oLocBack, oRotBack))
@@ -331,12 +360,18 @@ bool ADefaultPlayerController::CalculateAndPlaceChairs()
 	return true;
 }
 
+/// <summary>
+/// Mouse Press Callback
+/// </summary>
 void ADefaultPlayerController::MousePress()
 {
 	m_eTouchPoint = TouchPoints::eTouchNone;
 	m_bIsPressed = true;
 }
 
+/// <summary>
+/// Mouse Release Callback
+/// </summary>
 void ADefaultPlayerController::MouseRelease()
 {
 	m_bIsPressed = false;
@@ -362,6 +397,10 @@ void ADefaultPlayerController::MouseRelease()
 		CurrentMouseCursor = EMouseCursor::Default;
 }
 
+/// <summary>
+/// Function which gets called when the cursor overlap on the actor begins(i.e. table in this case)
+/// </summary>
+/// <param name="touchedComp">Touched component</param>
 void ADefaultPlayerController::HandleCursorOverlapBegin(AActor* touchedComp)
 {
 	m_bIsMouseOver = true;
@@ -371,6 +410,11 @@ void ADefaultPlayerController::HandleCursorOverlapBegin(AActor* touchedComp)
 		CurrentMouseCursor = EMouseCursor::GrabHand;
 }
 
+
+/// <summary>
+/// Function which gets called when the cursor overlap on the actor ends(i.e. table in this case)
+/// </summary>
+/// <param name="touchedComp">Touched component</param>
 void ADefaultPlayerController::HandleCursorOverlapEnd(AActor* touchedComp)
 {
 	m_bIsMouseOver = false;
