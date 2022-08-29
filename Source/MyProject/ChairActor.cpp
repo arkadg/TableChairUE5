@@ -13,8 +13,6 @@ AChairActor::AChairActor()
 	CustomMesh = CreateDefaultSubobject<UProceduralMeshComponent>("ChairMesh");
 	SetRootComponent(CustomMesh);
 
-	LowerLeftPointOfSeat.Z = 110;
-
 	CustomMesh->bUseAsyncCooking = true;
 }
 
@@ -22,37 +20,40 @@ void AChairActor::CreateChairMesh(double p_dLengthSeatSurface ,double p_dHeightS
 {
 	m_vfVertices.Empty();
 	m_viTriangles.Empty();
-	FVector oVector = LowerLeftPointOfSeat;
-	int vertexSizeSeat = CUtility::Generate3DQuadMesh(oVector, p_dLengthSeatSurface, p_dLengthSeatSurface, p_dHeightSeatSurface, m_vfVertices, m_viTriangles);
-	oVector.Z = 0;
+	FVector oVector = CenterPointOfSeat;
+	int vertexSeatSurface = CUtility::Generate3DQuadMesh(oVector, p_dLengthSeatSurface, p_dLengthSeatSurface, p_dHeightSeatSurface, m_vfVertices, m_viTriangles);
+	oVector.X = CenterPointOfSeat.X - p_dLengthSeatSurface / 2 + p_dWidthLeg / 2;
+	oVector.Y = CenterPointOfSeat.Y - p_dLengthSeatSurface / 2 + p_dWidthLeg / 2;
+	oVector.Z = CenterPointOfSeat.Z - p_dHeightSeatSurface / 2 - p_dHeightLeg / 2;
 	int vertexSizeSupport1 = CUtility::Generate3DQuadMesh(oVector, p_dWidthLeg, p_dWidthLeg, p_dHeightLeg, m_vfVertices, m_viTriangles);
-	oVector.Y = LowerLeftPointOfSeat.Y + p_dLengthSeatSurface - p_dWidthLeg;
+	oVector.X = CenterPointOfSeat.X - p_dLengthSeatSurface / 2 + p_dWidthLeg / 2;
+	oVector.Y = CenterPointOfSeat.Y + p_dLengthSeatSurface / 2 - p_dWidthLeg / 2;
 	int vertexSizeSupport2 = CUtility::Generate3DQuadMesh(oVector, p_dWidthLeg, p_dWidthLeg, p_dHeightLeg, m_vfVertices, m_viTriangles);
-	oVector.X = LowerLeftPointOfSeat.X + p_dLengthSeatSurface - p_dWidthLeg;
+	oVector.X = CenterPointOfSeat.X + p_dLengthSeatSurface / 2 - p_dWidthLeg / 2;
+	oVector.Y = CenterPointOfSeat.Y - p_dLengthSeatSurface / 2 + p_dWidthLeg / 2;
 	int vertexSizeSupport3 = CUtility::Generate3DQuadMesh(oVector, p_dWidthLeg, p_dWidthLeg, p_dHeightLeg, m_vfVertices, m_viTriangles);
-	oVector.Y = LowerLeftPointOfSeat.Y;
+	oVector.X = CenterPointOfSeat.X + p_dLengthSeatSurface / 2 - p_dWidthLeg / 2;
+	oVector.Y = CenterPointOfSeat.Y + p_dLengthSeatSurface / 2 - p_dWidthLeg / 2;
 	int vertexSizeSupport4 = CUtility::Generate3DQuadMesh(oVector, p_dWidthLeg, p_dWidthLeg, p_dHeightLeg, m_vfVertices, m_viTriangles);
 
 	// Back Support Code
-	oVector.X = LowerLeftPointOfSeat.X;
-	oVector.Y = LowerLeftPointOfSeat.Y;
-	oVector.Z = LowerLeftPointOfSeat.Z + p_dHeightSeatSurface;
+	oVector.X = CenterPointOfSeat.X - p_dLengthSeatSurface / 2 + p_dWidthBackSupport / 2;
+	oVector.Y = CenterPointOfSeat.Y - p_dLengthSeatSurface / 2 + p_dWidthBackSupport / 2;
+	oVector.Z = CenterPointOfSeat.Z + p_dHeightSeatSurface / 2 + p_dHeightBackSupport / 2;
 	int vertexBackSupport1 = CUtility::Generate3DQuadMesh(oVector, p_dWidthBackSupport, p_dWidthBackSupport, p_dHeightBackSupport, m_vfVertices, m_viTriangles);
 
-	oVector.X = LowerLeftPointOfSeat.X + p_dLengthSeatSurface - p_dWidthBackSupport;
-	oVector.Y = LowerLeftPointOfSeat.Y;
+	oVector.X = CenterPointOfSeat.X - p_dLengthSeatSurface / 2 + p_dWidthBackSupport / 2;
+	oVector.Y = CenterPointOfSeat.Y + p_dLengthSeatSurface / 2 - p_dWidthBackSupport / 2;
 	int vertexBackSupport2 = CUtility::Generate3DQuadMesh(oVector, p_dWidthBackSupport, p_dWidthBackSupport, p_dHeightBackSupport, m_vfVertices, m_viTriangles);
 
-	oVector.X = LowerLeftPointOfSeat.X;
-	oVector.Y = LowerLeftPointOfSeat.Y;
-	oVector.Z = LowerLeftPointOfSeat.Z + p_dHeightSeatSurface + p_dHeightBackSupport;
+	oVector.X = CenterPointOfSeat.X - p_dLengthSeatSurface / 2 + p_dWidthBackSupport / 2;
+	oVector.Y = CenterPointOfSeat.Y;
+	oVector.Z = CenterPointOfSeat.Z + p_dHeightSeatSurface / 2 + p_dHeightBackSupport  - p_dWidthBackSupport / 2;
 	double dHorizontalSupportWidth = p_dLengthSeatSurface;
-	int vertexBackSupport3 = CUtility::Generate3DQuadMesh(oVector, p_dWidthBackSupport, dHorizontalSupportWidth, p_dWidthBackSupport, m_vfVertices, m_viTriangles);
+	int vertexBackSupport3 = CUtility::Generate3DQuadMesh(oVector, dHorizontalSupportWidth, p_dWidthBackSupport, p_dWidthBackSupport, m_vfVertices, m_viTriangles);
 
-	oVector.X = LowerLeftPointOfSeat.X;
-	oVector.Y = LowerLeftPointOfSeat.Y;
-	oVector.Z = LowerLeftPointOfSeat.Z + p_dHeightSeatSurface + (p_dHeightBackSupport / 2.5);
-	int vertexBackSupport4 = CUtility::Generate3DQuadMesh(oVector, p_dWidthBackSupport, dHorizontalSupportWidth, p_dWidthBackSupport, m_vfVertices, m_viTriangles);
+	oVector.Z = CenterPointOfSeat.Z + p_dHeightSeatSurface/2 + (p_dHeightBackSupport / 3);
+	int vertexBackSupport4 = CUtility::Generate3DQuadMesh(oVector, dHorizontalSupportWidth, p_dWidthBackSupport, p_dWidthBackSupport, m_vfVertices, m_viTriangles);
 
 
 	CustomMesh->CreateMeshSection_LinearColor(0, m_vfVertices, m_viTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
@@ -80,15 +81,19 @@ void AChairActor::Tick(float DeltaTime)
 
 }
 
-void AChairActor::SetLowerLeftPointOfSeatSurface(double p_dX, double p_dY, double p_dZ)
+void AChairActor::SetCenterPointOfSeatSurface(double p_dX, double p_dY, double p_dZ)
 {
-	LowerLeftPointOfSeat.X = p_dX;
-	LowerLeftPointOfSeat.Y = p_dY;
-	LowerLeftPointOfSeat.Z = p_dZ;
+	CenterPointOfSeat.X = p_dX;
+	CenterPointOfSeat.Y = p_dY;
+	CenterPointOfSeat.Z = p_dZ;
 }
 
-void AChairActor::SetLowerLeftPointOfSeatSurface(const FVector& p_ofLowerLeftPointOfSeatSurface)
+void AChairActor::SetCenterPointOfSeatSurface(const FVector& p_ofLowerLeftPointOfSeatSurface)
 {
-	LowerLeftPointOfSeat = p_ofLowerLeftPointOfSeatSurface;
+	CenterPointOfSeat = p_ofLowerLeftPointOfSeatSurface;
 }
 
+UProceduralMeshComponent* AChairActor::GetProceduralMeshComponent()
+{
+	return CustomMesh;
+}

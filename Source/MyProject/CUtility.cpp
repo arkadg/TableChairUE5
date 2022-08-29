@@ -1,8 +1,10 @@
 #include "CUtility.h"
+
+
 /// <summary>
 /// Generate the 3d quadrilateral mesh points. The points are then added to create the triangles using the respective indices.
 /// </summary>
-/// <param name="p_oLowerLeftPoint">p_oLowerLeftPoint of the 3d Quad</param>
+/// <param name="p_oCenterPoint">Center point of the 3d Quad</param>
 /// <param name="p_dLength">Length of the quad (in Y Axis)</param>
 /// <param name="p_dBreadth">Breadth of the quad (in X Axis)</param>
 /// <param name="p_dHeight">Height of the quad(in Z Axis)</param>
@@ -10,20 +12,20 @@
 /// <param name="p_viTriangles">Array of indices which is used for creating the triangles</param>
 /// <returns></returns> Number of vertices to be rendered after adding the new vertices 
 /// 
-int CUtility::Generate3DQuadMesh(const FVector& p_oLowerLeftPoint, double p_dLength, double p_dBreadth, double p_dHeight, TArray<FVector>& p_vfVertices, TArray<int32> &p_viTriangles)
+int CUtility::Generate3DQuadMesh(const FVector& p_oCenterPoint, double p_dLength, double p_dBreadth, double p_dHeight, TArray<FVector>& p_vfVertices, TArray<int32> &p_viTriangles)
 {
 	int currentIndex = p_vfVertices.Num();
 
-	p_vfVertices.Add(p_oLowerLeftPoint); //lower left - 0
-	p_vfVertices.Add(FVector(p_oLowerLeftPoint.X, p_oLowerLeftPoint.Y, p_oLowerLeftPoint.Z + p_dHeight)); //upper left - 1
-	p_vfVertices.Add(FVector(p_oLowerLeftPoint.X, p_oLowerLeftPoint.Y + p_dLength, p_oLowerLeftPoint.Z)); //lower right - 2 
-	p_vfVertices.Add(FVector(p_oLowerLeftPoint.X, p_oLowerLeftPoint.Y + p_dLength, p_oLowerLeftPoint.Z + p_dHeight)); //upper right - 3
+	p_vfVertices.Add(FVector(p_oCenterPoint.X - p_dBreadth/2, p_oCenterPoint.Y - p_dLength/2, p_oCenterPoint.Z - p_dHeight/2)); //lower left - 0
+	p_vfVertices.Add(FVector(p_oCenterPoint.X - p_dBreadth / 2, p_oCenterPoint.Y - p_dLength / 2, p_oCenterPoint.Z + p_dHeight/2)); //upper left - 1
+	p_vfVertices.Add(FVector(p_oCenterPoint.X - p_dBreadth / 2, p_oCenterPoint.Y + p_dLength / 2, p_oCenterPoint.Z - p_dHeight / 2)); //lower right - 2 
+	p_vfVertices.Add(FVector(p_oCenterPoint.X - p_dBreadth / 2, p_oCenterPoint.Y + p_dLength / 2, p_oCenterPoint.Z + p_dHeight / 2)); //upper right - 3
 
-	p_vfVertices.Add(FVector(p_oLowerLeftPoint.X + p_dBreadth, p_oLowerLeftPoint.Y, p_oLowerLeftPoint.Z)); //lower front left - 4
-	p_vfVertices.Add(FVector(p_oLowerLeftPoint.X + p_dBreadth, p_oLowerLeftPoint.Y, p_oLowerLeftPoint.Z + p_dHeight)); //upper front left - 5
+	p_vfVertices.Add(FVector(p_oCenterPoint.X + p_dBreadth/2, p_oCenterPoint.Y - p_dLength / 2, p_oCenterPoint.Z - p_dHeight / 2)); //lower front left - 4
+	p_vfVertices.Add(FVector(p_oCenterPoint.X + p_dBreadth/2, p_oCenterPoint.Y - p_dLength / 2, p_oCenterPoint.Z + p_dHeight / 2)); //upper front left - 5
 
-	p_vfVertices.Add(FVector(p_oLowerLeftPoint.X + p_dBreadth, p_oLowerLeftPoint.Y + p_dLength, p_oLowerLeftPoint.Z + p_dHeight)); //upper front right - 6
-	p_vfVertices.Add(FVector(p_oLowerLeftPoint.X + p_dBreadth, p_oLowerLeftPoint.Y + p_dLength, p_oLowerLeftPoint.Z)); //lower front right - 7
+	p_vfVertices.Add(FVector(p_oCenterPoint.X + p_dBreadth / 2, p_oCenterPoint.Y + p_dLength / 2, p_oCenterPoint.Z + p_dHeight / 2)); //upper front right - 6
+	p_vfVertices.Add(FVector(p_oCenterPoint.X + p_dBreadth / 2, p_oCenterPoint.Y + p_dLength / 2, p_oCenterPoint.Z - p_dHeight / 2)); //lower front right - 7
 
 	ConstructTriangleWithIndices(p_viTriangles,currentIndex, currentIndex + 2, currentIndex + 3);
 	ConstructTriangleWithIndices(p_viTriangles,currentIndex + 3, currentIndex + 1, currentIndex);

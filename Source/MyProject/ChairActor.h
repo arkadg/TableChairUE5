@@ -15,18 +15,18 @@ class MYPROJECT_API AChairActor : public AActor
 private:
 	TArray<int32> m_viTriangles;
 	TArray<FVector> m_vfVertices;
+
+	FVector CenterPointOfSeat;
 	
 public:	
 	// Sets default values for this actor's properties
 	AChairActor();
 	void CreateChairMesh(double p_dLengthSeatSurface, double p_dHeightSeatSurface, double p_dWidthLeg, double p_dHeightLeg,double p_dHeightBackSupport,double p_dWidthBackSupport);
+	UProceduralMeshComponent* GetProceduralMeshComponent();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-		FVector LowerLeftPointOfSeat;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UProceduralMeshComponent* CustomMesh;
@@ -39,7 +39,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	void SetLowerLeftPointOfSeatSurface(double p_dX, double p_dY, double p_dZ);
-	void SetLowerLeftPointOfSeatSurface(const FVector& p_ofLowerLeftPointOfSeatSurface);
+	void SetCenterPointOfSeatSurface(double p_dX, double p_dY, double p_dZ);
+	void SetCenterPointOfSeatSurface(const FVector& p_ofLowerLeftPointOfSeatSurface);
 
 };
