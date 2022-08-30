@@ -4,10 +4,11 @@
 #include "DefaultPlayerController.h"
 #include <Kismet/GameplayStatics.h>
 
-#define WIDTH_OF_CHAIR 150
+#define WIDTH_OF_CHAIR 150.0
 #define INITIAL_WIDTH_OF_TABLE 400
 #define HEIGHT_OF_SEAT_CHAIR 100
 #define ACCEPTABLE_WIDTH_FOR_MOUSE_GRAB 20.0
+#define MINIMUM_GAP_BETWEEN_CHAIRS 100.0
 
 
 
@@ -81,28 +82,24 @@ void ADefaultPlayerController::Tick(float deltatime)
 					CurrentMouseCursor = EMouseCursor::GrabHandClosed;
 					m_eTouchPoint = TouchPoints::eLeftBack;
 					m_bStartDrag = true;
-					DestroyChairs();
 				}
 				else if (FMath::Abs(diffLeftFront.X) <= ACCEPTABLE_WIDTH_FOR_MOUSE_GRAB && FMath::Abs(diffLeftFront.Y) <= ACCEPTABLE_WIDTH_FOR_MOUSE_GRAB)
 				{
 					CurrentMouseCursor = EMouseCursor::GrabHandClosed;
 					m_eTouchPoint = TouchPoints::eLeftFront;
 					m_bStartDrag = true;
-					DestroyChairs();
 				}
 				else if (FMath::Abs(diffRightBack.X) <= ACCEPTABLE_WIDTH_FOR_MOUSE_GRAB && FMath::Abs(diffRightBack.Y) <= ACCEPTABLE_WIDTH_FOR_MOUSE_GRAB)
 				{
 					CurrentMouseCursor = EMouseCursor::GrabHandClosed;
 					m_eTouchPoint = TouchPoints::eRightBack;
 					m_bStartDrag = true;
-					DestroyChairs();
 				}
 				else if (FMath::Abs(diffRightFront.X) <= ACCEPTABLE_WIDTH_FOR_MOUSE_GRAB && FMath::Abs(diffRightFront.Y) <= ACCEPTABLE_WIDTH_FOR_MOUSE_GRAB)
 				{
 					CurrentMouseCursor = EMouseCursor::GrabHandClosed;
 					m_eTouchPoint = TouchPoints::eRightFront;
 					m_bStartDrag = true;
-					DestroyChairs();
 				}
 				else if(m_bIsMouseOver)
 					CurrentMouseCursor = EMouseCursor::SlashedCircle;
@@ -149,6 +146,17 @@ void ADefaultPlayerController::Tick(float deltatime)
 				{
 					m_actTable->UpdateMesh(m_eTouchPoint, stretch);
 					m_fvStretch = stretch;
+					if (nullptr != m_actTable)
+					{
+						TArray<FVector> updatedVertices;
+						m_actTable->GetUpdatedVertices(updatedVertices);
+
+						if (m_eTouchPoint != TouchPoints::eTouchNone)
+							m_actTable->CaptureUpdatedVerticesData(updatedVertices, m_eTouchPoint, stretch);
+
+						DestroyChairs();
+						CalculateAndPlaceChairs();
+					}
 				}
 				else
 				{
@@ -316,16 +324,21 @@ bool ADefaultPlayerController::CalculateAndPlaceChairs()
 	double dDiffXAxis = oTablePointBackLeft.X - oTablePointFrontLeft.X; // breadth of the updated rectangle
 	double dDiffYAxis = oTablePointBackLeft.Y - oTablePointBackRight.Y; // length of the updated rectangle
 
+	m_actTable->SetBreadthTableSurface(dDiffXAxis);
+	m_actTable->SetLengthTableSurface(dDiffYAxis);
+
+
+	//  Table width should be greater than equal to 400
 	if (FMath::Abs(dDiffXAxis) < INITIAL_WIDTH_OF_TABLE || FMath::Abs(dDiffYAxis) < INITIAL_WIDTH_OF_TABLE)
 		return false;
 
 	// choosing the gap between chairs to be atleast 100, width of chair is 150
 	// so the quation becomes 150*x + (x+1)*100 = VALUE
-	double uiNumOfChairsXAxis = static_cast<unsigned int>((FMath::Abs(dDiffXAxis) - 100.0)) / 250;
-	double uiGapValueXAxis = 100 + (static_cast<unsigned int>((FMath::Abs(dDiffXAxis) - 100.0)) % 250)/(uiNumOfChairsXAxis + 1);
+	unsigned int uiNumOfChairsXAxis = static_cast<unsigned int>((FMath::Abs(dDiffXAxis) - MINIMUM_GAP_BETWEEN_CHAIRS)) / 250;
+	unsigned int uiGapValueXAxis = 100 + (static_cast<unsigned int>((FMath::Abs(dDiffXAxis) - MINIMUM_GAP_BETWEEN_CHAIRS)) % 250)/(uiNumOfChairsXAxis + 1);
 
-	double uiNumOfChairsYAxis = static_cast<unsigned int>((FMath::Abs(dDiffYAxis) - 100.0)) / 250;
-	double uiGapValueYAxis = 100 + (static_cast<unsigned int>((FMath::Abs(dDiffYAxis) - 100.0)) % 250) / (uiNumOfChairsYAxis + 1);
+	unsigned int uiNumOfChairsYAxis = static_cast<unsigned int>((FMath::Abs(dDiffYAxis) - MINIMUM_GAP_BETWEEN_CHAIRS)) / 250;
+	unsigned int uiGapValueYAxis = 100 + (static_cast<unsigned int>((FMath::Abs(dDiffYAxis) - MINIMUM_GAP_BETWEEN_CHAIRS)) % 250) / (uiNumOfChairsYAxis + 1);
 
 	for (unsigned int i = 0; i < uiNumOfChairsXAxis; i++)
 	{
@@ -375,21 +388,7 @@ void ADefaultPlayerController::MousePress()
 void ADefaultPlayerController::MouseRelease()
 {
 	m_bIsPressed = false;
-	if (m_bStartDrag)
-	{
-		if (nullptr != m_actTable)
-		{
-			TArray<FVector> updatedVertices;
-			m_actTable->GetUpdatedVertices(updatedVertices);
-
-			if(m_eTouchPoint != TouchPoints::eTouchNone)
-				m_actTable->CaptureUpdatedVerticesData(updatedVertices,m_eTouchPoint,m_fvStretch);
-
-			CalculateAndPlaceChairs();
-		}
-
-		m_bStartDrag = false;
-	}
+	m_bStartDrag = false;
 	m_eTouchPoint = TouchPoints::eTouchNone;
 	if (m_bIsMouseOver)
 		CurrentMouseCursor = EMouseCursor::GrabHand;
